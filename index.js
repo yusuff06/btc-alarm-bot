@@ -10,7 +10,14 @@ async function checkBTC() {
     const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
     const data = await r.json();
 
-    const price = data.bitcoin.usd;
+    // 🔥 NULL SAFE
+    const price = data?.bitcoin?.usd;
+
+    if (!price) {
+      console.log("Fiyat alınamadı:", data);
+      return;
+    }
+
     const now = Date.now();
 
     history.push({ price, time: now });
@@ -20,7 +27,7 @@ async function checkBTC() {
 
     let msg = null;
 
-    // 1 dk kontrol
+    // 1 dk
     const oneMin = history.find(x => now - x.time >= 60000);
     if (oneMin) {
       const diff = price - oneMin.price;
@@ -30,7 +37,7 @@ async function checkBTC() {
       }
     }
 
-    // 2 dk kontrol
+    // 2 dk
     const twoMin = history.find(x => now - x.time >= 120000);
     if (twoMin) {
       const diff = price - twoMin.price;
@@ -52,7 +59,7 @@ async function checkBTC() {
         })
       });
 
-      console.log("ALARM:", msg);
+      console.log("ALARM GÖNDERİLDİ:", msg);
     }
 
   } catch (err) {
@@ -60,7 +67,7 @@ async function checkBTC() {
   }
 }
 
-// 🔥 HER 10 SANİYE ÇALIŞIR
+// 🔥 HER 10 SN
 setInterval(checkBTC, 10000);
 
 console.log("BTC BOT BAŞLADI...");
